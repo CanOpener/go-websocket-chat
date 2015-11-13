@@ -12,19 +12,21 @@ var upgrader = websocket.Upgrader{
 }
 
 func connReader(conn *websocket.Conn) {
-	defer conn.Close()
+	log.Println("New Connection")
 	for {
 		messageType, messageBytes, err := conn.ReadMessage()
 		if err != nil {
+			log.Println("Connection Closed.")
 			break
 		}
 		if messageType != websocket.BinaryMessage {
-			log.Println("Message not binary: ", string(messageBytes))
+			log.Println("Message not binary:\n", string(messageBytes))
 			break
 		}
 
-		log.Println("Received Message: ", string(messageBytes))
+		log.Println("Received Message:\n", string(messageBytes))
 	}
+	conn.Close()
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -38,5 +40,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", handler)
+	log.Println("Server Listening on :3000")
+	defer log.Println("Server done.")
 	http.ListenAndServe(":3000", nil)
 }
